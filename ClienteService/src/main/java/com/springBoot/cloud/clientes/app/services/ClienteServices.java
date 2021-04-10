@@ -8,13 +8,18 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.springBoot.cloud.clientes.app.ExternalApiRest.ProductosExternalRest;
 import com.springBoot.cloud.clientes.app.entities.Cliente;
+import com.springBoot.cloud.clientes.app.entities.Producto;
 import com.springBoot.cloud.clientes.app.repositories.ClienteRepository;
 
 @Service
 public class ClienteServices {
 	@Autowired 
 	private ClienteRepository ClienteRepository;
+	
+	@Autowired
+	private ProductosExternalRest productosExternalRest;
 	
 	public List<Cliente> obtenerListaClientes(){
 		List<Cliente> listaClientes = ClienteRepository.findAll();
@@ -25,7 +30,9 @@ public class ClienteServices {
 		Optional<Cliente> clienteDB = ClienteRepository.findById(idCliente);
 		if(clienteDB.isPresent()) {
 			//Se obtienen los productos del cliente desde un origen remoto
-			//clienteDB.get().setListaProductos();
+			List<Producto> listaProductos=productosExternalRest.obtenerListaProductos();
+			clienteDB.get().setListaProductos(listaProductos);
+			System.out.println("El cliente con sus objetos son: "+clienteDB.get().toString());
 			return clienteDB.get();
 		}
 		else
