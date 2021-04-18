@@ -1,14 +1,14 @@
 package com.springBoot.cloud.clientes.app.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import com.springBoot.cloud.clientes.app.ExternalApiRest.ProductosExternalRest;
 import com.springBoot.cloud.clientes.app.entities.Cliente;
 import com.springBoot.cloud.clientes.app.entities.Producto;
 import com.springBoot.cloud.clientes.app.repositories.ClienteRepository;
@@ -19,7 +19,7 @@ public class ClienteServices {
 	private ClienteRepository ClienteRepository;
 	
 	@Autowired
-	private ProductosExternalRest productosExternalRest;
+	private RestTemplate obtenerProductosService;
 	
 	public List<Cliente> obtenerListaClientes(){
 		List<Cliente> listaClientes = ClienteRepository.findAll();
@@ -30,7 +30,7 @@ public class ClienteServices {
 		Optional<Cliente> clienteDB = ClienteRepository.findById(idCliente);
 		if(clienteDB.isPresent()) {
 			//Se obtienen los productos del cliente desde un origen remoto
-			List<Producto> listaProductos=productosExternalRest.obtenerListaProductos();
+			List<Producto> listaProductos=Arrays.asList(obtenerProductosService.getForObject("http://producto-service/productosServices/productos", Producto[].class));
 			clienteDB.get().setListaProductos(listaProductos);
 			System.out.println("El cliente con sus objetos son: "+clienteDB.get().toString());
 			return clienteDB.get();
